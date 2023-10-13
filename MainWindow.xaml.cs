@@ -1,8 +1,17 @@
 ﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.AspNetCore.Http;
+using Image = System.Drawing.Image;
 
 namespace SimpleSearchGooglePhoto;
 
@@ -19,6 +28,7 @@ public partial class MainWindow : Window
 
     int count = 0;
     private string nextPage = "&tbm=isch&start=0";
+
     private void SearchButton_Click(object sender, RoutedEventArgs e)
     {
         string searchQuery = SearchTextBox.Text;
@@ -58,7 +68,7 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Enter)
         {
-            SearchButton_Click(sender,e);
+            SearchButton_Click(sender, e);
         }
     }
 
@@ -66,13 +76,58 @@ public partial class MainWindow : Window
     {
         ImageListBox.Width = this.Width;
         ImageListBox.Height = this.Height;
-       
+
     }
 
     private void NextClick(object sender, RoutedEventArgs e)
     {
         count += 20;
         nextPage = $"&tbm=isch&start={count}";
-        SearchButton_Click(sender,e);
+        SearchButton_Click(sender, e);
     }
+
+    private string selectedImageUrl = "";
+    //string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/Images", "selected_image.png");
+    private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ImageListBox.SelectedItem != null)
+        {
+            selectedImageUrl = ImageListBox.SelectedItem.ToString();
+        }
+    }
+
+    private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
+    {
+        if (ImageListBox.SelectedItem != null)
+        {
+            MessageBox.Show("Downloaded....");
+        }
+        
+    }
+
+    private void SaveImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (ImageListBox.SelectedItem != null)
+        {
+            if (!string.IsNullOrEmpty(selectedImageUrl))
+            {
+                using (WebClient client = new WebClient())
+                {
+                    if (!Directory.Exists("wwwroot/Images"))
+                        Directory.CreateDirectory("Images");
+
+
+                    var fileName = "Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
+                    client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
+                    Uri imageUrl = new Uri(selectedImageUrl);
+                    client.DownloadFileAsync(imageUrl, fileName);
+                }
+            }
+        }
+        else
+        {
+            MessageBox.Show("Not selected");
+        }
+    }
+
 }
