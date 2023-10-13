@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     }
 
     int count = 0;
+    int pageCounter = 0;
     private string nextPage = "&tbm=isch&start=0";
 
     private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -81,9 +82,14 @@ public partial class MainWindow : Window
 
     private void NextClick(object sender, RoutedEventArgs e)
     {
+        if (pageCounter == 30)
+        {
+            count = 0;
+        }
         count += 20;
         nextPage = $"&tbm=isch&start={count}";
         SearchButton_Click(sender, e);
+        pageCounter ++;
     }
 
     private string selectedImageUrl = "";
