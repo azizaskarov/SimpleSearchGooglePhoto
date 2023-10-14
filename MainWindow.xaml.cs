@@ -136,7 +136,7 @@ public partial class MainWindow : Window
 
 
                         var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
-                        client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
+                        //client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
                         Uri imageUrl = new Uri(selectedItem.ToString()!);
                         client.DownloadFileAsync(imageUrl, fileName);
                         imageSaveCounter++;
