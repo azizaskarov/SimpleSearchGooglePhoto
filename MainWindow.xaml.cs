@@ -3,15 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Mime;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Microsoft.AspNetCore.Http;
-using Image = System.Drawing.Image;
+using System.Windows.Media;
+using OpenQA.Selenium.DevTools.V115.DOM;
 
 namespace SimpleSearchGooglePhoto;
 
@@ -27,6 +25,7 @@ public partial class MainWindow : Window
     }
 
     int count = 0;
+    int imageSaveCounter = 0;
     int pageCounter = 0;
     private string nextPage = "&tbm=isch&start=0";
 
@@ -89,51 +88,80 @@ public partial class MainWindow : Window
         count += 20;
         nextPage = $"&tbm=isch&start={count}";
         SearchButton_Click(sender, e);
-        pageCounter ++;
+        pageCounter++;
     }
 
     private string selectedImageUrl = "";
     //string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/Images", "selected_image.png");
-    private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ImageListBox.SelectedItem != null)
+    
+        private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            selectedImageUrl = ImageListBox.SelectedItem.ToString();
+            if (ImageListBox.SelectedItems.Count > 6)
+            {
+               ImageListBox.SelectedItems.RemoveAt(6);
+            }
         }
-    }
 
     private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
     {
         if (ImageListBox.SelectedItem != null)
         {
-            MessageBox.Show("Downloaded....");
+
+            MessageBox.Show($"{count}  Downloaded....");
         }
-        
     }
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {
-        if (ImageListBox.SelectedItem != null)
+        //var win = new ImagesWiew();
+        //win.ShowDialog();
+
+        foreach (var selectedItem in ImageListBox.SelectedItems)
         {
-            if (!string.IsNullOrEmpty(selectedImageUrl))
+            if (selectedItem != null)
             {
-                using (WebClient client = new WebClient())
+                if (!string.IsNullOrEmpty(selectedItem.ToString()))
                 {
-                    if (!Directory.Exists("../../../Images"))
-                        Directory.CreateDirectory("../../../Images");
+
+                    if (imageSaveCounter == 6)
+                    {
+                        MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
+                        return;
+                    }
+
+                    using (WebClient client = new WebClient())
+                    {
+                        if (!Directory.Exists("../../../Images"))
+                            Directory.CreateDirectory("../../../Images");
 
 
-                    var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
-                    client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
-                    Uri imageUrl = new Uri(selectedImageUrl);
-                    client.DownloadFileAsync(imageUrl, fileName);
+                        var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
+                        client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
+                        Uri imageUrl = new Uri(selectedItem.ToString()!);
+                        client.DownloadFileAsync(imageUrl, fileName);
+                        imageSaveCounter++;
+                    }
                 }
             }
+            else
+            {
+                MessageBox.Show("Not selected");
+            }
         }
-        else
-        {
-            MessageBox.Show("Not selected");
-        }
+    }
+
+
+
+    private void ExitBtn_Click(object sender, RoutedEventArgs e)
+    {
+        this.Close();
+    }
+
+    private void GridMouseDown(object sender, MouseButtonEventArgs e)
+    {
+
+        if (e.ChangedButton == MouseButton.Left)
+            this.DragMove();
     }
 
 }
