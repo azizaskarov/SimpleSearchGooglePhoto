@@ -119,11 +119,11 @@ public partial class MainWindow : Window
             {
                 using (WebClient client = new WebClient())
                 {
-                    if (!Directory.Exists("wwwroot/Images"))
-                        Directory.CreateDirectory("Images");
+                    if (!Directory.Exists("../../../Images"))
+                        Directory.CreateDirectory("../../../Images");
 
 
-                    var fileName = "Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
+                    var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
                     client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
                     Uri imageUrl = new Uri(selectedImageUrl);
                     client.DownloadFileAsync(imageUrl, fileName);
