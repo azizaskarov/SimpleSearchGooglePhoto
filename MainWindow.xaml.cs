@@ -1,14 +1,7 @@
 ﻿using HtmlAgilityPack;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SimpleSearchGooglePhoto;
@@ -32,12 +25,15 @@ public partial class MainWindow : Window
 
 
 
+    //https://www.google.com/search?q=coca+cola&oq=coca+cola&gs_lcrp=EgZjaHJvbWUqBwgAEAAYjwIyBwgAEAAYjwIyDQgBEC4YxwEY0QMYgAQyBggCEEUYQDINCAMQLhivARjHARiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIHCAcQABiABNIBCDE3OTFqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8
+
 
 
     private void SearchButton_Click(object sender, RoutedEventArgs e)
     {
+
         string searchQuery = SearchTextBox.Text;
-        string googleUrl = "https://www.google.com/search?q=" + WebUtility.UrlEncode(searchQuery) + $"{nextPage}";
+        string googleUrl = $"https://www.google.com/search?q=" + searchQuery + $"&tbm=isch&start={pageCounter}";
 
         HtmlWeb web = new HtmlWeb();
         HtmlDocument doc = web.Load(googleUrl);
@@ -45,6 +41,7 @@ public partial class MainWindow : Window
         List<string> imageUrls = new List<string>();
         HtmlNodeCollection imgNodes = doc.DocumentNode.SelectNodes("//img[@data-src]");
 
+        var imageControls = new List<ImageControl>();
         if (imgNodes != null)
         {
             foreach (HtmlNode imgNode in imgNodes)
@@ -53,17 +50,21 @@ public partial class MainWindow : Window
                 if (!string.IsNullOrEmpty(imageUrl))
                 {
                     imageUrls.Add(imageUrl);
+                    var imageControl = new ImageControl();
+                    imageControl.ImageUrl = imageUrl;
+                    imageControls.Add(imageControl);
                 }
             }
         }
 
-        ImageListBox.ItemsSource = imageUrls;
+        ImageListControl.ItemsSource = imageControls;
 
         if (SearchTextBox.Text.Length != 0)
         {
             nextBtn.Visibility = Visibility.Visible;
         }
     }
+
 
     private void SearchTextBox_OnKeyDown(object sender, KeyEventArgs e)
     {
@@ -75,8 +76,8 @@ public partial class MainWindow : Window
 
     private void ImageListBox_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        ImageListBox.Width = this.Width;
-        ImageListBox.Height = this.Height;
+        ImageListControl.Width = this.Width;
+        ImageListControl.Height = this.Height;
 
     }
 
@@ -88,89 +89,89 @@ public partial class MainWindow : Window
         }
         count += 20;
         nextPage = $"&tbm=isch&start={count}";
-        SearchButton_Click(sender, e);
+        //SearchButton_Click(sender, e);
         pageCounter++;
 
     }
 
 
-    private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ImageListBox.SelectedItems.Count > 6)
-        {
-            ImageListBox.SelectedItems.RemoveAt(6);
-        }
+    //private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    //{
+    //    if (ImageListBox.SelectedItems.Count > 6)
+    //    {
+    //        ImageListBox.SelectedItems.RemoveAt(6);
+    //    }
 
-        //foreach (var selectedItem in ImageListBox.SelectedItems)
-        //{
-        //    string imageUrl = selectedItem as string;
-        //    if (!string.IsNullOrEmpty(imageUrl) && !imageUrls.Contains(imageUrl))
-        //    {
-        //        imageUrls.Add(imageUrl);
-        //    }
-        //}
+    //    foreach (var selectedItem in ImageListBox.SelectedItems)
+    //    {
+    //        string imageUrl = selectedItem as string;
+    //        if (!string.IsNullOrEmpty(imageUrl) && !imageUrls.Contains(imageUrl))
+    //        {
+    //            imageUrls.Add(imageUrl);
+    //        }
+    //    }
 
-        //MessageBox.Show($"{imageUrls.Count}");
-    }
+    //    MessageBox.Show($"{imageUrls.Count}");
+    //}
 
 
 
     //private List<string> imageUrls = new List<string>();
-    private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
-    {
-        if (ImageListBox.SelectedItem != null)
-        {
+    //private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
+    //{
+    //    if (ImageListBox.SelectedItem != null)
+    //    {
 
-            MessageBox.Show($"{count}  Downloaded....");
-        }
-    }
+    //        MessageBox.Show($"{count}  Downloaded....");
+    //    }
+    //}
 
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {
 
-        if (ImageListBox.SelectedItems.Count != 0)
-        {
-            if (ImageListBox.SelectedItems.Count == 6)
-            {
-                foreach (var selectedItem in ImageListBox.SelectedItems)
-                {
+        //if (ImageListControl.SelectedItems.Count != 0)
+        //{
+        //    if (ImageListBox.SelectedItems.Count == 6)
+        //    {
+        //        foreach (var selectedItem in ImageListBox.SelectedItems)
+        //        {
 
-                    if (!string.IsNullOrEmpty(selectedItem.ToString()))
-                    {
+        //            if (!string.IsNullOrEmpty(selectedItem.ToString()))
+        //            {
 
-                        //if (imageSaveCounter == 6)
-                        //{
-                        //    MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
-                        //    return;
-                        //}
-
-                       
-                            using (WebClient client = new WebClient())
-                            {
-                                if (!Directory.Exists("../../../Images"))
-                                    Directory.CreateDirectory("../../../Images");
+        //                //if (imageSaveCounter == 6)
+        //                //{
+        //                //    MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
+        //                //    return;
+        //                //}
 
 
-                                var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
-                                //client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
-                                Uri imageUrl = new Uri(selectedItem.ToString());
-                                client.DownloadFileAsync(imageUrl, fileName);
-                                imageSaveCounter++;
-                            }
-                    }
-                }
+        //                    using (WebClient client = new WebClient())
+        //                    {
+        //                        if (!Directory.Exists("../../../Images"))
+        //                            Directory.CreateDirectory("../../../Images");
 
-            }
-            else
-            {
-                MessageBox.Show("6 ta rasm tanlang");
-            }
-        }
-        else
-        {
-            MessageBox.Show("Not selected");
-        }
+
+        //                        var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
+        //                        //client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
+        //                        Uri imageUrl = new Uri(selectedItem.ToString());
+        //                        client.DownloadFileAsync(imageUrl, fileName);
+        //                        imageSaveCounter++;
+        //                    }
+        //            }
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        MessageBox.Show("6 ta rasm tanlang");
+        //    }
+        //}
+        //else
+        //{
+        //    MessageBox.Show("Not selected");
+        //}
     }
 
     private void ExitBtn_Click(object sender, RoutedEventArgs e)
@@ -185,4 +186,10 @@ public partial class MainWindow : Window
             this.DragMove();
     }
 
+    private void BackBtn_OnClick(object sender, RoutedEventArgs e)
+    {
+        count -= 20;
+        nextPage = $"&tbm=isch&start={count}";
+        SearchButton_Click(sender, e);
+    }
 }
