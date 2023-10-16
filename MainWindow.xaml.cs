@@ -10,6 +10,11 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using OpenQA.Selenium.DevTools.V115.DOM;
+using System.Threading.Tasks;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
 
 namespace SimpleSearchGooglePhoto;
 
@@ -63,7 +68,6 @@ public partial class MainWindow : Window
         }
     }
 
-
     private void SearchTextBox_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter)
@@ -93,14 +97,15 @@ public partial class MainWindow : Window
 
     private string selectedImageUrl = "";
     //string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/Images", "selected_image.png");
-    
-        private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+    private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ImageListBox.SelectedItems.Count > 6)
         {
-            if (ImageListBox.SelectedItems.Count > 6)
-            {
-               ImageListBox.SelectedItems.RemoveAt(6);
-            }
+            ImageListBox.SelectedItems.RemoveAt(6);
         }
+
+    }
 
     private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
     {
@@ -113,21 +118,19 @@ public partial class MainWindow : Window
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {
-        //var win = new ImagesWiew();
-        //win.ShowDialog();
-
-        foreach (var selectedItem in ImageListBox.SelectedItems)
+        if (ImageListBox.SelectedItems.Count != 0)
         {
-            if (selectedItem != null)
+            foreach (var selectedItem in ImageListBox.SelectedItems)
             {
+
                 if (!string.IsNullOrEmpty(selectedItem.ToString()))
                 {
 
-                    if (imageSaveCounter == 6)
-                    {
-                        MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
-                        return;
-                    }
+                    //if (imageSaveCounter == 6)
+                    //{
+                    //    MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
+                    //    return;
+                    //}
 
                     using (WebClient client = new WebClient())
                     {
@@ -143,25 +146,23 @@ public partial class MainWindow : Window
                     }
                 }
             }
-            else
-            {
-                MessageBox.Show("Not selected");
-            }
+        }
+        else
+        {
+            MessageBox.Show("Not selected");
         }
     }
 
+private void ExitBtn_Click(object sender, RoutedEventArgs e)
+{
+    this.Close();
+}
 
+private void GridMouseDown(object sender, MouseButtonEventArgs e)
+{
 
-    private void ExitBtn_Click(object sender, RoutedEventArgs e)
-    {
-        this.Close();
-    }
-
-    private void GridMouseDown(object sender, MouseButtonEventArgs e)
-    {
-
-        if (e.ChangedButton == MouseButton.Left)
-            this.DragMove();
-    }
+    if (e.ChangedButton == MouseButton.Left)
+        this.DragMove();
+}
 
 }
