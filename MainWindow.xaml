@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SimpleSearchGooglePhoto"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"  AllowsTransparency="True"
         Title="Image Search App" Height="730" WindowStyle="None"  Width="1024" WindowStartupLocation="CenterScreen">
     <Grid>
@@ -24,9 +25,20 @@
 
         <TextBox Grid.Row="1" Name="SearchTextBox" KeyDown="SearchTextBox_OnKeyDown" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" Width="300"/>
         <Button Grid.Row="1" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="18" Margin="320,10,0,0" Click="SearchButton_Click"/>
-        <Button Grid.Row="1" Name="nextBtn" Content="Next" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="18" Margin="400,10,0,0" Click="NextClick"/>
+        <Button Grid.Row="1" Name="backBtn" Content="Back" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="18" Margin="400,10,0,0" Click="BackBtn_OnClick"/>
+        <Button Grid.Row="1" Name="nextBtn" Content="Next" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="18" Margin="480,10,0,0" Click="NextClick"/>
 
-        <ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged" SelectionMode="Multiple" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer  Grid.Row="1" Margin="10,50,10,40"  md:ScrollBarAssist.ButtonsVisibility="Hidden"   VerticalScrollBarVisibility="Hidden" >
+            <ItemsControl x:Name="ImageListControl"  >
+                <ItemsControl.ItemsPanel  >
+                    <ItemsPanelTemplate >
+                        <WrapPanel Margin="0,0,0,0"/>  
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!--<ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged" SelectionMode="Multiple" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -55,9 +67,9 @@
                     <WrapPanel/>
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
-        </ListBox>
+        </ListBox>-->
 
 
-        <Button Content="Save Image" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Width="76" Height="18" Margin="10,10,0,0" Click="SaveImage_Click"/>
+        <Button Content="Save Image" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="76" Height="18" Margin="559,10,0,0" Click="SaveImage_Click"/>
     </Grid>
 </Window>
