@@ -26,12 +26,14 @@
         <Button Grid.Row="1" Content="Search" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="18" Margin="320,10,0,0" Click="SearchButton_Click"/>
         <Button Grid.Row="1" Name="nextBtn" Content="Next" Visibility="Visible" HorizontalAlignment="Left" VerticalAlignment="Top" Width="70" Height="18" Margin="400,10,0,0" Click="NextClick"/>
 
-        <ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged"  SelectionMode="Multiple" 
+        <!--<ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged"  SelectionMode="Multiple" 
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
-                        <Image Width="150" Height="150" Source="{Binding}" Margin="5"></Image>
+
+                        <Image Width="150" Height="150" Source="{Binding}" Margin="5"/>
+
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
@@ -41,7 +43,54 @@
                     <WrapPanel/>
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
+        </ListBox>-->
+
+        <ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged" SelectionMode="Multiple" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <Image Width="150" Height="150" Source="{Binding}" Margin="5"/>
+
+                        <TextBlock Text=" Главново " Margin="5 0 0 0"  Background="#5A7BEC" Foreground="#FFFFFF" Height="20"  FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" >
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+
+            </ListBox.ItemTemplate>
+
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
         </ListBox>
+
+        <!--<ListBox Grid.Row="1" Name="ImageListBox" Margin="10,50,10,40" SelectionChanged="ImageListBox_SelectionChanged" SelectionMode="Multiple" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <Image Width="150" Height="150" Source="{Binding}" Margin="5"/>
+                        <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Items.IndexOf(.)}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>-->
+
         <Button Content="Save Image" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Width="76" Height="18" Margin="10,10,0,0" Click="SaveImage_Click"/>
     </Grid>
 </Window>
