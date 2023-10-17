@@ -1,66 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using SimpleSearchGooglePhoto.Images;
 
-namespace SimpleSearchGooglePhoto;
-
-/// <summary>
-/// Interaction logic for ImageControl.xaml
-/// </summary>
-public partial class ImageControl : UserControl
+namespace SimpleSearchGooglePhoto
 {
-
-    static int imageControlButtonCounter;
-    public bool isClicked = false;
-    public MainWindow ParentWindow;
-
-    public ImageControl(MainWindow mainWindow)
+    /// <summary>
+    /// Interaction logic for SelectImage.xaml
+    /// </summary>
+    public partial class SelectImage : UserControl
     {
-        InitializeComponent();
-        this.ParentWindow = mainWindow;
-    }
-
-    public object ImageUrl
-    {
-        get => imageUrl.Source.ToString()!;
-        set
+        public SelectImage(MainWindow parentWindow, SelectedImages selected, ImageControl imageControl)
         {
-            BitmapImage image = new BitmapImage(new Uri(value.ToString()!));
-            imageUrl.Source = image;
-
+            InitializeComponent();
+            this.selected = selected;
+            this.imageControl = imageControl;
+            this.ParentWindow = parentWindow;
         }
-    }
+        ImageControl imageControl;
+        private SelectedImages selected;
+        MainWindow ParentWindow;
+        public object ImageUrl
+        {
+            get => imageUrl.Source.ToString()!;
+            set
+            {
+                BitmapImage image = new BitmapImage(new Uri(value.ToString()!));
+                imageUrl.Source = image;
+            }
+        }
 
-    public object ImageLabel
-    {
-        get => textImage.Text.ToString()!;
-        set => textImage.Text = value.ToString();
-    }
-
-    private void ImageControl_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
+        public object ImageLabel
+        {
+            get => textImage.Text.ToString()!;
+            set => textImage.Text = value.ToString();
+        }
 
 
-        var items = ParentWindow.ImageListControl.ItemsSource as List<ImageControl>;
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            Helper.ImageUrls.Remove(ImageUrl.ToString()!);
 
-        var count = items.Where(that => that.isClicked == true).Count();
+            var items = ParentWindow.ImageListControl.ItemsSource as List<ImageControl>;
+
+            var count = items.Where(that => that.isClicked == true).Count();
 
 
-       
+
 
 
             if (count != 6)
             {
-                isClicked = !isClicked;
+                imageControl.isClicked = !imageControl.isClicked;
 
-                if (isClicked && Helper.ImageUrls.Count < 6)
+                if (imageControl.isClicked && Helper.ImageUrls.Count < 6)
                 {
-                    imageControlButtonCounter++;
                     this.Background = new SolidColorBrush(Colors.CadetBlue);
                     Helper.ImageUrls.Add((string)ImageUrl);
 
@@ -87,9 +92,9 @@ public partial class ImageControl : UserControl
             }
             else if (count! == 6)
             {
-                if (isClicked)
+                if (imageControl.isClicked)
                 {
-                    isClicked = !isClicked;
+                    imageControl.isClicked = !imageControl.isClicked;
                     textImage.Visibility = Visibility.Collapsed;
                     this.Background = new SolidColorBrush(Colors.Azure);
                     Helper.ImageUrls.Remove((string)ImageUrl);
@@ -104,5 +109,10 @@ public partial class ImageControl : UserControl
                 }
 
             }
+
+            selected.Load();
+
+
+        }
     }
 }
