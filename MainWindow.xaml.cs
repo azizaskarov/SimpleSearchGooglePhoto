@@ -1,8 +1,13 @@
-﻿using HtmlAgilityPack;
+﻿using System;
+using HtmlAgilityPack;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Input;
+using MaterialDesignThemes.Wpf;
+using SimpleSearchGooglePhoto.Images;
 
 namespace SimpleSearchGooglePhoto;
 
@@ -15,8 +20,10 @@ public partial class MainWindow : Window
     {
 
         InitializeComponent();
+        IsImageAlready("asd");
         SearchTextBox.Focus();
     }
+
 
     int count = 0;
     int imageSaveCounter = 0;
@@ -28,41 +35,91 @@ public partial class MainWindow : Window
     //https://www.google.com/search?q=coca+cola&oq=coca+cola&gs_lcrp=EgZjaHJvbWUqBwgAEAAYjwIyBwgAEAAYjwIyDQgBEC4YxwEY0QMYgAQyBggCEEUYQDINCAMQLhivARjHARiABDIHCAQQABiABDIHCAUQABiABDIHCAYQABiABDIHCAcQABiABNIBCDE3OTFqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8
 
 
+    private ImageControl imageControlMain;
+    //private void SearchButton_Click(object sender, RoutedEventArgs e)
+    //{
+
+    //    string searchQuery = SearchTextBox.Text;
+    //    string googleUrl = $"https://www.google.com/search?q=" + searchQuery + $"{nextPage}";
+
+    //    HtmlWeb web = new HtmlWeb();
+    //    HtmlDocument doc = web.Load(googleUrl);
+
+    //    List<string> imageUrls = new List<string>();
+    //    HtmlNodeCollection imgNodes = doc.DocumentNode.SelectNodes("//img[@data-src]");
+
+    //    var imageControls = new List<ImageControl>();
+    //    if (imgNodes != null)
+    //    {
+    //        foreach (HtmlNode imgNode in imgNodes)
+    //        {
+    //            string imageUrl = imgNode.GetAttributeValue("data-src", "");
+    //            if (!string.IsNullOrEmpty(imageUrl))
+    //            {
+    //                imageUrls.Add(imageUrl);
+    //                var imageControl = new ImageControl(this);
+    //                imageControl.ImageUrl = imageUrl;
+    //                imageControls.Add(imageControl);
+    //                imageControlMain = imageControl;
+    //            }
+    //        }
+    //    }
+
+    //    ImageListControl.ItemsSource = imageControls;
+
+    //    if (SearchTextBox.Text.Length != 0)
+    //    {
+    //        nextBtn.Visibility = Visibility.Visible;
+    //    }
+    //}
 
     private void SearchButton_Click(object sender, RoutedEventArgs e)
     {
-
         string searchQuery = SearchTextBox.Text;
-        string googleUrl = $"https://www.google.com/search?q=" + searchQuery + $"&tbm=isch&start={pageCounter}";
-
-        HtmlWeb web = new HtmlWeb();
-        HtmlDocument doc = web.Load(googleUrl);
+        int numImagesToFetch = 300; 
+        int imagesPerPage = 20;   
+        int numPagesToFetch = (numImagesToFetch - 1) / imagesPerPage + 1; 
 
         List<string> imageUrls = new List<string>();
-        HtmlNodeCollection imgNodes = doc.DocumentNode.SelectNodes("//img[@data-src]");
+        HtmlWeb web = new HtmlWeb();
 
-        var imageControls = new List<ImageControl>();
-        if (imgNodes != null)
+        for (int page = 0; page < numPagesToFetch; page++)
         {
-            foreach (HtmlNode imgNode in imgNodes)
+            int startOffset = page * imagesPerPage;
+            string googleUrl = $"https://www.google.com/search?q={searchQuery}&tbm=isch&start={startOffset}";
+            HtmlDocument doc = web.Load(googleUrl);
+
+            HtmlNodeCollection imgNodes = doc.DocumentNode.SelectNodes("//img[@data-src]");
+
+            if (imgNodes != null)
             {
-                string imageUrl = imgNode.GetAttributeValue("data-src", "");
-                if (!string.IsNullOrEmpty(imageUrl))
+                
+                foreach (HtmlNode imgNode in imgNodes)
                 {
-                    imageUrls.Add(imageUrl);
-                    var imageControl = new ImageControl();
-                    imageControl.ImageUrl = imageUrl;
-                    imageControls.Add(imageControl);
+                    string imageUrl = imgNode.GetAttributeValue("data-src", "");
+                    if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        imageUrls.Add(imageUrl);
+
+                        if (imageUrls.Count >= numImagesToFetch)
+                            break;
+                    }
                 }
             }
+
+            if (imageUrls.Count >= numImagesToFetch)
+                break;
+        }
+
+        List<ImageControl> imageControls = new List<ImageControl>();
+        foreach (string imageUrl in imageUrls)
+        {
+            var imageControl = new ImageControl(this);
+            imageControl.ImageUrl = imageUrl;
+            imageControls.Add(imageControl);
         }
 
         ImageListControl.ItemsSource = imageControls;
-
-        if (SearchTextBox.Text.Length != 0)
-        {
-            nextBtn.Visibility = Visibility.Visible;
-        }
     }
 
 
@@ -89,89 +146,60 @@ public partial class MainWindow : Window
         }
         count += 20;
         nextPage = $"&tbm=isch&start={count}";
-        //SearchButton_Click(sender, e);
+        SearchButton_Click(sender,e);
         pageCounter++;
 
     }
 
 
-    //private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    //{
-    //    if (ImageListBox.SelectedItems.Count > 6)
-    //    {
-    //        ImageListBox.SelectedItems.RemoveAt(6);
-    //    }
 
-    //    foreach (var selectedItem in ImageListBox.SelectedItems)
-    //    {
-    //        string imageUrl = selectedItem as string;
-    //        if (!string.IsNullOrEmpty(imageUrl) && !imageUrls.Contains(imageUrl))
-    //        {
-    //            imageUrls.Add(imageUrl);
-    //        }
-    //    }
-
-    //    MessageBox.Show($"{imageUrls.Count}");
-    //}
-
-
-
-    //private List<string> imageUrls = new List<string>();
-    //private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
-    //{
-    //    if (ImageListBox.SelectedItem != null)
-    //    {
-
-    //        MessageBox.Show($"{count}  Downloaded....");
-    //    }
-    //}
-
+    private List<string> imageUrls = new List<string>();
 
     private void SaveImage_Click(object sender, RoutedEventArgs e)
     {
 
-        //if (ImageListControl.SelectedItems.Count != 0)
-        //{
-        //    if (ImageListBox.SelectedItems.Count == 6)
-        //    {
-        //        foreach (var selectedItem in ImageListBox.SelectedItems)
-        //        {
-
-        //            if (!string.IsNullOrEmpty(selectedItem.ToString()))
-        //            {
-
-        //                //if (imageSaveCounter == 6)
-        //                //{
-        //                //    MessageBox.Show("6 tadan kop rasm yuklay olmaysiz");
-        //                //    return;
-        //                //}
+        if (Helper.ImageUrls.Count != 0)
+        {
+            foreach (var imageUrl in Helper.ImageUrls)
+            {
+                using (WebClient client = new WebClient())
+                {
+                    if (!Directory.Exists("../../../Images"))
+                        Directory.CreateDirectory("../../../Images");
 
 
-        //                    using (WebClient client = new WebClient())
-        //                    {
-        //                        if (!Directory.Exists("../../../Images"))
-        //                            Directory.CreateDirectory("../../../Images");
+                    var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
+                    Uri url = new Uri(imageUrl);
+                    if (!imageUrls.Exists(i => i.Equals(imageUrl)))
+                    {
+                        client.DownloadFileAsync(url, fileName);
+                        imageUrls.Add(imageUrl);
+                        imageSaveCounter++;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Already exists");
+                    }
 
+                }
+            }
+           
+        }
+        else
+        {
+            MessageBox.Show("Not selected");
+        }
+    }
 
-        //                        var fileName = "../../../Images/" + Guid.NewGuid() + $"{SearchTextBox.Text}.jpg";
-        //                        //client.DownloadFileCompleted += new AsyncCompletedEventHandler(FileDownLoad!);
-        //                        Uri imageUrl = new Uri(selectedItem.ToString());
-        //                        client.DownloadFileAsync(imageUrl, fileName);
-        //                        imageSaveCounter++;
-        //                    }
-        //            }
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        MessageBox.Show("6 ta rasm tanlang");
-        //    }
-        //}
-        //else
-        //{
-        //    MessageBox.Show("Not selected");
-        //}
+    private bool IsImageAlready(string imageUrl)
+    {
+        string folderPath = @"../../../Images/";
+        var files = Directory.GetFiles(folderPath).ToList();
+        if (files.Exists(url => url.Equals(imageUrl)))
+        {
+            return true;
+        }
+        return false;
     }
 
     private void ExitBtn_Click(object sender, RoutedEventArgs e)
@@ -192,4 +220,49 @@ public partial class MainWindow : Window
         nextPage = $"&tbm=isch&start={count}";
         SearchButton_Click(sender, e);
     }
+
+    private void SelectedImages_OnClick(object sender, RoutedEventArgs e)
+    {
+
+
+        var win = new SelectedImages(this, imageControlMain);
+        win.ShowDialog();
+    }
 }
+
+
+public static class Helper
+{
+    public static List<string> ImageUrls = new();
+}
+
+//private void ImageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+//{
+//    if (ImageListBox.SelectedItems.Count > 6)
+//    {
+//        ImageListBox.SelectedItems.RemoveAt(6);
+//    }
+
+//    foreach (var selectedItem in ImageListBox.SelectedItems)
+//    {
+//        string imageUrl = selectedItem as string;
+//        if (!string.IsNullOrEmpty(imageUrl) && !imageUrls.Contains(imageUrl))
+//        {
+//            imageUrls.Add(imageUrl);
+//        }
+//    }
+
+//    MessageBox.Show($"{imageUrls.Count}");
+//}
+
+
+
+//private List<string> imageUrls = new List<string>();
+//private void FileDownLoad(object sender, AsyncCompletedEventArgs e)
+//{
+//    if (ImageListBox.SelectedItem != null)
+//    {
+
+//        MessageBox.Show($"{count}  Downloaded....");
+//    }
+//}
