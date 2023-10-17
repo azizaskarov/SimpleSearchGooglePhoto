@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SimpleSearchGooglePhoto"
              mc:Ignorable="d"   MouseLeftButtonDown="ImageControl_OnMouseLeftButtonDown"  
-             Height="150" Width="150" Background="Azure" Margin="14 5 0 0" Cursor="Hand" >
+             Height="150" Width="150" Background="Azure" Margin="14 5 0 0" Cursor="Hand">
 
     <Grid  Width="150" Height="150" >
 

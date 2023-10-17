@@ -20,7 +20,7 @@ public partial class MainWindow : Window
     private void SearchButton_Click(object sender, RoutedEventArgs e)
     {
         string searchQuery = SearchTextBox.Text;
-        int numImagesToFetch = 300; 
+        int numImagesToFetch = 50; 
         int imagesPerPage = 20;   
         int numPagesToFetch = (numImagesToFetch - 1) / imagesPerPage + 1; 
 
