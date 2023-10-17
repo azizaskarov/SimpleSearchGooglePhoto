@@ -16,4 +16,8 @@
     <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="23.1.40" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Images\" />
+  </ItemGroup>
+
 </Project>
